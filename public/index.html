@@ -1,0 +1,50 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Chat de texto</title>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.1/socket.io.js"></script>
+        <link rel="stylesheet" href="styles.css">
+    </head>
+    <body>
+        <form id="chat">
+            <input type="text" name="username" placeholder="Digite seu usuário">
+            <div class="messages"></div>
+            <input type="text" name="message" placeholder="Digite seu mensagem">
+            <button type="submit">Enviar</button>
+        </form>
+        <script type="text/javascript">
+            //socket chamado através do cdn importando
+            var socket=io('http://localhost:3000');
+
+            function renderMessge(message){
+                $('.messages').append('<div class="message"><strong>'+ message.author +'</strong>:'+message.message+'</div>')
+            }
+
+            socket.on('receivedMessage',function(messsage){
+                renderMessage(message);
+            });
+
+            //quando o form chat for submitado
+            $('#chat').submit(function(event){
+                event.preventDefault();//impede que o formulario seja recarregado e enviado
+                var author=$('input[name=username]').val();
+                var message=$('input[name=message]').val();
+
+                //se há alguma mensagem digitada
+                if(message.length){
+                    //objeto da mensagem
+                    var messageObject={
+                        author:author,
+                        message:message,
+                    };
+
+                    //renderiza função com o append da mensagem
+                    renderMessge(messageObject);
+                    //evento que envia o objeto messageObject
+                    socket.emit('sendMessage',messageObject)
+                }
+            });
+        </script>
+    </body>
+</html>
